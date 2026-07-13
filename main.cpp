@@ -8,8 +8,8 @@ using namespace KamataEngine;
 
 // --- グローバル変数 ---
 TitleScene* titleScene = nullptr; // タイトルシーンのインスタンス
-GameScene*  gameScene  = nullptr; // ゲームシーンのインスタンス
-GolfScene*  golfScene  = nullptr; // ゴルフシーンのインスタンス
+GameScene* gameScene = nullptr;   // ゲームシーンのインスタンス
+GolfScene* golfScene = nullptr;   // ゴルフシーンのインスタンス
 
 // シーンの種類を定義
 enum class Scene {

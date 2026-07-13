@@ -86,6 +86,8 @@ private:
 	static inline const float kCourseMaxZ  = 17.5f;
 	static inline const float kHoleRadius  = 0.7f;  // ホールに入る判定半径
 	static inline const float kBounceDecay = 0.65f; // 壁・障害物バウンス時の速度減衰率
+	static inline const float kHolePosX    = 14.0f; // ホールの X 座標
+	static inline const float kHolePosZ    = 14.0f; // ホールの Z 座標
 
 	// --- スコア ---
 	int   strokeCount_ = 0;

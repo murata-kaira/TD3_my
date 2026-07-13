@@ -101,7 +101,7 @@ void GolfScene::InitializeCourseElements() {
 	// ホール（目標地点）
 	worldTransformHole_.Initialize();
 	worldTransformHole_.scale_       = {0.9f, 0.15f, 0.9f};
-	worldTransformHole_.translation_ = {14.0f, 0.08f, 14.0f};
+	worldTransformHole_.translation_ = {kHolePosX, 0.08f, kHolePosZ};
 	WorldTransformUpdate(worldTransformHole_);
 
 	// --- 障害物の追加 ---
@@ -153,8 +153,8 @@ void GolfScene::Update() {
 		// ホールインの判定
 		{
 			const Vector3& pos = ball_->GetPosition();
-			float dx = pos.x - 14.0f;
-			float dz = pos.z - 14.0f;
+			float dx = pos.x - kHolePosX;
+			float dz = pos.z - kHolePosZ;
 			if (dx * dx + dz * dz < kHoleRadius * kHoleRadius) {
 				// ホールイン！
 				phase_     = Phase::kGoal;
