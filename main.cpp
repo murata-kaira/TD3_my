@@ -1,19 +1,22 @@
 #include "KamataEngine.h"
 #include <Windows.h>
 #include "GameScene.h"
+#include "GolfScene.h"
 #include "TitleScene.h" 
 
 using namespace KamataEngine;
 
 // --- グローバル変数 ---
 TitleScene* titleScene = nullptr; // タイトルシーンのインスタンス
-GameScene* gameScene = nullptr;   // ゲームシーンのインスタンス
+GameScene*  gameScene  = nullptr; // ゲームシーンのインスタンス
+GolfScene*  golfScene  = nullptr; // ゴルフシーンのインスタンス
 
 // シーンの種類を定義
 enum class Scene {
 	kUnknown = 0, // 未定義
 	kTitle,       // タイトル
-	kGame,        // ゲーム本編
+	kGame,        // ゲーム本編（アクション）
+	kGolf,        // ゴルフゲーム
 };
 
 Scene scene = Scene::kUnknown; // 現在のシーン
@@ -21,6 +24,7 @@ Scene scene = Scene::kUnknown; // 現在のシーン
 /**
  * @brief シーンの切り替え判定と実行
  * 各シーンの終了フラグをチェックし、次のシーンへ遷移させる。
+ * 遷移順: タイトル → アクション → ゴルフ → タイトル …
  */
 void ChangeScene() {
 	switch (scene) {
@@ -29,26 +33,35 @@ void ChangeScene() {
 		if (titleScene->IsFinished()) {
 			scene = Scene::kGame;
 			
-			// タイトルのメモリを解放
 			delete titleScene;
 			titleScene = nullptr;
 
-			// ゲームシーンの作成と初期化
 			gameScene = new GameScene;
 			gameScene->Initialize();
 		}
 		break;
 
 	case Scene::kGame:
-		// ゲームシーンが終了していたら、タイトルシーンへ
+		// ゲームシーンが終了していたら、ゴルフシーンへ
 		if (gameScene->IsFinished()) {
-			scene = Scene::kTitle;
+			scene = Scene::kGolf;
 
-			// ゲームシーンのメモリを解放
 			delete gameScene;
 			gameScene = nullptr;
 
-			// タイトルシーンの作成と初期化
+			golfScene = new GolfScene;
+			golfScene->Initialize();
+		}
+		break;
+
+	case Scene::kGolf:
+		// ゴルフシーンが終了していたら、タイトルシーンへ
+		if (golfScene->IsFinished()) {
+			scene = Scene::kTitle;
+
+			delete golfScene;
+			golfScene = nullptr;
+
 			titleScene = new TitleScene;
 			titleScene->Initialize();
 		}
@@ -67,6 +80,9 @@ void UpdateScene() {
 	case Scene::kGame:
 		if (gameScene) gameScene->Update();
 		break;
+	case Scene::kGolf:
+		if (golfScene) golfScene->Update();
+		break;
 	}
 }
 
@@ -80,6 +96,9 @@ void DrawScene() {
 		break;
 	case Scene::kGame:
 		if (gameScene) gameScene->Draw();
+		break;
+	case Scene::kGolf:
+		if (golfScene) golfScene->Draw();
 		break;
 	}
 }
@@ -129,6 +148,7 @@ int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 	// メモリの解放を忘れずに行う
 	delete titleScene;
 	delete gameScene;
+	delete golfScene;
 	
 	// エンジンの終了処理
 	KamataEngine::Finalize();
