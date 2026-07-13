@@ -28,6 +28,8 @@ GameScene::~GameScene() {
 	delete blockModel_;
 	delete skydomeModel_;
 	delete deathParticleModel_;
+
+	delete golfScene_;
 }
 
 /**
@@ -102,6 +104,14 @@ void GameScene::ChangePhase() {
 		break;
 	case Phase::kFadeOut:
 		if (fade_->IsFinished()) {
+			// アクションパート終了 → ゴルフゲームパートへ
+			golfScene_ = new GolfScene();
+			golfScene_->Initialize();
+			phase_ = Phase::kGolf;
+		}
+		break;
+	case Phase::kGolf:
+		if (golfScene_ && golfScene_->IsFinished()) {
 			finished_ = true;
 		}
 		break;
@@ -138,6 +148,12 @@ void GameScene::GenerateBlocks() {
 void GameScene::Update() { 
 	ChangePhase();
 
+	// ゴルフフェーズ中はゴルフシーンに全処理を委譲
+	if (phase_ == Phase::kGolf) {
+		if (golfScene_) golfScene_->Update();
+		return;
+	}
+
 	skydome_->Update();
 	cameraController_->Update();
 	
@@ -164,6 +180,10 @@ void GameScene::Update() {
 	case Phase::kFadeOut:
 		fade_->Update();
 		break;
+
+	case Phase::kGolf:
+		// 上のアーリーリターンで処理済み
+		break;
 	}
 
 	if (isDebugCameraActive_) {
@@ -186,6 +206,12 @@ void GameScene::Update() {
  * @brief 描画
  */
 void GameScene::Draw() { 
+	// ゴルフフェーズ中はゴルフシーンに全描画を委譲
+	if (phase_ == Phase::kGolf) {
+		if (golfScene_) golfScene_->Draw();
+		return;
+	}
+
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
 	Model::PreDraw(dxCommon->GetCommandList());
