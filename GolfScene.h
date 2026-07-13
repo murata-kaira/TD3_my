@@ -89,6 +89,18 @@ private:
 	static inline const float kHolePosX    = 14.0f; // ホールの X 座標
 	static inline const float kHolePosZ    = 14.0f; // ホールの Z 座標
 
+	// --- エイム・ショット定数 ---
+	static inline const float kAimSpeed   = 0.04f;  // 1フレームあたりの照準回転速度 [rad]
+	static inline const float kPowerSpeed = 0.018f; // 1フレームあたりのパワー増加量
+	static inline const float kMaxPower   = 1.0f;   // パワーの最大値
+	static inline const float kMaxSpeed   = 0.38f;  // ショット最大初速
+
+	// --- 照準インジケーター定数 ---
+	static inline const float kArrowBaseDistance = 1.3f;  // エイム時の矢印基本距離
+	static inline const float kArrowPowerScale   = 4.5f;  // パワーに応じた矢印距離の係数
+	static inline const float kArrowBaseScale    = 0.22f; // 矢印の基本スケール
+	static inline const float kArrowPowerScaleF  = 0.18f; // パワーに応じた矢印スケールの係数
+
 	// --- スコア ---
 	int   strokeCount_ = 0;
 	float goalTimer_   = 0.0f; // ゴール後の待機タイマー

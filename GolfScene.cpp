@@ -192,11 +192,6 @@ void GolfScene::Update() {
  * @brief 照準フェーズの入力・更新
  */
 void GolfScene::UpdateAiming() {
-	const float kAimSpeed   = 0.04f;  // 1フレームあたりの照準回転速度 [rad]
-	const float kPowerSpeed = 0.018f; // 1フレームあたりのパワー増加量
-	const float kMaxPower   = 1.0f;
-	const float kMaxSpeed   = 0.38f;  // ショット最大初速
-
 	// 左右矢印キーで照準を回転
 	if (Input::GetInstance()->PushKey(DIK_LEFT)) {
 		aimAngle_ -= kAimSpeed;
@@ -221,8 +216,8 @@ void GolfScene::UpdateAiming() {
 
 	// 照準インジケーターをボールの前方に配置
 	const Vector3& ballPos = ball_->GetPosition();
-	float arrowDist  = 1.3f + power_ * 4.5f;
-	float arrowScale = 0.22f + power_ * 0.18f;
+	float arrowDist  = kArrowBaseDistance + power_ * kArrowPowerScale;
+	float arrowScale = kArrowBaseScale    + power_ * kArrowPowerScaleF;
 
 	worldTransformArrow_.translation_ = {
 	    ballPos.x + std::sin(aimAngle_) * arrowDist,
