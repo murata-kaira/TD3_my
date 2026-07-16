@@ -28,21 +28,55 @@ GameScene::~GameScene() {
 	delete blockModel_;
 	delete skydomeModel_;
 	delete deathParticleModel_;
-
-	delete golfScene_;
 }
 
 /**
  * @brief 初期化
  */
 void GameScene::Initialize() {
+	// --- 1. システム・カメラの初期化 ---
 	camera_.Initialize();
+	// カメラを斜め上からの俯瞰視点に設定
+	camera_.translation_ = { 0.0f, 15.0f, -10.0f };
+	camera_.rotation_ = { 0.8f, 0.0f, 0.0f };
+
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 
-	// アクションパートをスキップしてゴルフパートへ直行
-	golfScene_ = new GolfScene();
-	golfScene_->Initialize();
-	phase_ = Phase::kGolf;
+	fade_ = new Fade();
+	fade_->Initialize();
+	fade_->Start(Fade::Status::FadeIn, 1.0f);
+
+	// --- 2. モデルデータのロード ---
+	model_ = Model::Create();
+	skydomeModel_ = Model::CreateFromOBJ("skydome", true);
+	blockModel_ = Model::CreateFromOBJ("block");
+	playerModel_ = Model::CreateFromOBJ("player");
+	deathParticleModel_ = Model::CreateFromOBJ("deathParticle");
+
+	// --- 3. マップの生成 ---
+	mapChipField_ = new MapChipField();
+	mapChipField_->LoadMapChipCsv("Resources/blocks.csv");
+	GenerateBlocks();
+
+	// --- 4. プレイヤーの生成と初期化 ---
+	player_ = new Player();
+	player_->SetMapChipField(mapChipField_);
+	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(5, 19);
+	player_->Initialize(playerModel_, &camera_, playerPosition);
+
+	// --- 5. 背景（スカイドーム）の初期化 ---
+	skydome_ = new Skydome();
+	skydome_->Initialize(skydomeModel_, &camera_);
+
+	// --- 6. カメラコントローラーの初期化 ---
+	cameraController_ = new CameraController();
+	cameraController_->Initialize(&camera_);
+	cameraController_->SetTarget(player_);
+	cameraController_->Reset();
+	CameraController::Rect cameraArea = {0.0f, 100.0f, 0.0f, 20.0f};
+	cameraController_->SetMovableArea(cameraArea);
+
+	phase_ = Phase::kPlay;
 }
 
 /**
@@ -66,16 +100,10 @@ void GameScene::ChangePhase() {
 		break;
 	case Phase::kFadeOut:
 		if (fade_->IsFinished()) {
-			// アクションパート終了 → ゴルフゲームパートへ
-			golfScene_ = new GolfScene();
-			golfScene_->Initialize();
-			phase_ = Phase::kGolf;
-		}
-		break;
-	case Phase::kGolf:
-		if (golfScene_ && golfScene_->IsFinished()) {
 			finished_ = true;
 		}
+		break;
+	default:
 		break;
 	}
 }
@@ -110,12 +138,6 @@ void GameScene::GenerateBlocks() {
 void GameScene::Update() { 
 	ChangePhase();
 
-	// ゴルフフェーズ中はゴルフシーンに全処理を委譲
-	if (phase_ == Phase::kGolf) {
-		if (golfScene_) golfScene_->Update();
-		return;
-	}
-
 	skydome_->Update();
 	cameraController_->Update();
 	
@@ -143,8 +165,7 @@ void GameScene::Update() {
 		fade_->Update();
 		break;
 
-	case Phase::kGolf:
-		// 上のアーリーリターンで処理済み
+	default:
 		break;
 	}
 
@@ -168,12 +189,6 @@ void GameScene::Update() {
  * @brief 描画
  */
 void GameScene::Draw() { 
-	// ゴルフフェーズ中はゴルフシーンに全描画を委譲
-	if (phase_ == Phase::kGolf) {
-		if (golfScene_) golfScene_->Draw();
-		return;
-	}
-
 	DirectXCommon* dxCommon = DirectXCommon::GetInstance();
 
 	Model::PreDraw(dxCommon->GetCommandList());
@@ -204,6 +219,5 @@ void GameScene::Draw() {
  * @brief 当たり判定のチェック
  */
 void GameScene::CheckAllCollisions() {
-	// エネミー削除に伴い、現在はプレイヤーとマップの判定のみ（Playerクラス内で処理済み）
-	// 将来的にアイテム等の判定が必要になればここに追加する
+	// 将来的にアイテム・敵などの判定が必要になればここに追加する
 }

@@ -7,11 +7,9 @@
 #include "CameraController.h"
 #include "DeathParticles.h"
 #include "Fade.h"
-#include "GolfScene.h"
 
 /**
- * @brief ゲーム本編のメインシーン
- * アクションパート終了後、内部でゴルフゲームを起動する。
+ * @brief ゲーム本編のメインシーン（3Dアクションパート）
  */
 class GameScene {
 public:
@@ -43,8 +41,7 @@ private:
 		kFadeIn,  // フェードイン
 		kPlay,    // ゲームプレイ中
 		kDeath,   // 死亡演出中
-		kFadeOut, // フェードアウト（アクションパート終了）
-		kGolf,    // ゴルフゲームパート
+		kFadeOut, // フェードアウト（シーン終了）
 	};
 	Phase phase_; // 現在の進行状況
 
@@ -77,7 +74,4 @@ private:
 	
 	// ブロックの座標情報などのリスト
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
-
-	// --- ゴルフゲームパート ---
-	GolfScene* golfScene_ = nullptr; // アクションパート後に起動するゴルフシーン
 };
