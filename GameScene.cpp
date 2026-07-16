@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "Math.h"
+#include <cmath>
 
 using namespace KamataEngine;
 
@@ -75,6 +76,12 @@ void GameScene::Initialize() {
 	cameraController_->Reset();
 	CameraController::Rect cameraArea = {0.0f, 100.0f, 0.0f, 20.0f};
 	cameraController_->SetMovableArea(cameraArea);
+
+	// --- 7. ゴールオブジェクトの初期化 ---
+	worldTransformGoal_.Initialize();
+	worldTransformGoal_.translation_ = mapChipField_->GetMapChipPositionByIndex(kGoalXIndex, kGoalYIndex);
+	worldTransformGoal_.translation_.y = 0.9f;
+	worldTransformGoal_.scale_ = {1.5f, 1.5f, 1.5f};
 
 	phase_ = Phase::kPlay;
 }
@@ -183,6 +190,7 @@ void GameScene::Update() {
 			if (block) WorldTransformUpdate(*block);
 		}
 	}
+	WorldTransformUpdate(worldTransformGoal_);
 }
 
 /**
@@ -205,6 +213,9 @@ void GameScene::Draw() {
 		}
 	}
 
+	// ゴールオブジェクトを描画
+	blockModel_->Draw(worldTransformGoal_, camera_);
+
 	if (player_->IsDead() && deathParticles_) {
 		deathParticles_->Draw();
 	}
@@ -219,5 +230,16 @@ void GameScene::Draw() {
  * @brief 当たり判定のチェック
  */
 void GameScene::CheckAllCollisions() {
-	// 将来的にアイテム・敵などの判定が必要になればここに追加する
+	// ゴール到達判定
+	if (phase_ == Phase::kPlay) {
+		Vector3 playerPos = player_->GetWorldPosition();
+		Vector3 goalPos = worldTransformGoal_.translation_;
+		float dx = playerPos.x - goalPos.x;
+		float dz = playerPos.z - goalPos.z;
+		float dist = std::sqrt(dx * dx + dz * dz);
+		if (dist < kGoalRadius) {
+			phase_ = Phase::kFadeOut;
+			fade_->Start(Fade::Status::FadeOut, 1.0f);
+		}
+	}
 }

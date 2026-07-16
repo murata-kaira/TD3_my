@@ -74,4 +74,10 @@ private:
 	
 	// ブロックの座標情報などのリスト
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;
+
+	// --- ゴール ---
+	KamataEngine::WorldTransform worldTransformGoal_; // ゴールオブジェクトの座標
+	static inline const uint32_t kGoalXIndex = 90u;  // ゴールのマップX
+	static inline const uint32_t kGoalYIndex = 10u;  // ゴールのマップY
+	static inline const float kGoalRadius = 1.5f;    // ゴール判定半径
 };
