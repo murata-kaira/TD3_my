@@ -1,8 +1,0 @@
-# Bat material - wood brown color
-newmtl bat
-Ka 0.35 0.18 0.08
-Kd 0.60 0.30 0.12
-Ks 0.15 0.08 0.03
-Ns 20.0
-d 1.0
-illum 2

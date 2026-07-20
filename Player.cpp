@@ -8,13 +8,6 @@
 #include "MapChipField.h"
 
 /**
- * @brief デストラクタ
- */
-Player::~Player() {
-	delete batModel_;
-}
-
-/**
  * @brief 初期化
  */
 void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const Vector3& position) { 
@@ -31,11 +24,6 @@ void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera
 	
 	// 初期方向を前（Z軸プラス）に向ける
 	worldTransform_.rotation_.y = 0.0f;
-
-	// バットモデルのロードと初期化
-	batModel_ = KamataEngine::Model::CreateFromOBJ("bat");
-	batWorldTransform_.Initialize();
-	batWorldTransform_.translation_ = kBatLocalTranslation;
 }
 
 /**
@@ -59,15 +47,6 @@ void Player::Update() {
 	}
 
 	WorldTransformUpdate(worldTransform_);
-
-	// バットのワールド行列をプレイヤーローカル空間で計算（親子関係）
-	Matrix4x4 batLocal = MakeAffineMatrix(
-		batWorldTransform_.scale_,
-		batWorldTransform_.rotation_,
-		batWorldTransform_.translation_
-	);
-	batWorldTransform_.matWorld_ = Multiply(batLocal, worldTransform_.matWorld_);
-	batWorldTransform_.TransferMatrix();
 }
 
 /**
@@ -75,15 +54,13 @@ void Player::Update() {
  */
 void Player::Draw() { 
 	model_->Draw(worldTransform_, *camera_, textureHandle_); 
-	batModel_->Draw(batWorldTransform_, *camera_);
 }
 
 /**
  * @brief バットスイング入力の処理
  *
  * Spaceキーを押すとスイングアニメーションが始まる。
- * バットの X 軸回転を sin 波で変化させることでスイング動作を表現する。
- * プレイヤー本体は動かさず、バットのみを振る。
+ * プレイヤーモデルの X 軸回転を sin 波で変化させることでスイング動作を表現する。
  */
 void Player::InputSwing() {
 	// スイング中でないとき、Spaceキーが押されたらスイング開始
@@ -97,12 +74,12 @@ void Player::InputSwing() {
 		float progress = swingTimer_ / kSwingTime;
 
 		if (progress >= 1.0f) {
-			// スイング終了：バットを元の姿勢に戻す
+			// スイング終了：元の姿勢に戻す
 			isSwinging_ = false;
-			batWorldTransform_.rotation_.x = 0.0f;
+			worldTransform_.rotation_.x = 0.0f;
 		} else {
 			// sin 波で滑らかに振る：0 → 最大角度 → 0
-			batWorldTransform_.rotation_.x = kSwingMaxAngle * std::sin(std::numbers::pi_v<float> * progress);
+			worldTransform_.rotation_.x = kSwingMaxAngle * std::sin(std::numbers::pi_v<float> * progress);
 		}
 	}
 }
