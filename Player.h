@@ -1,6 +1,7 @@
 #pragma once
 #include "KamataEngine.h"
 #include "Math.h"
+#include <cmath>
 
 using namespace KamataEngine;
 
@@ -54,6 +55,10 @@ public:
 	Vector3 GetWorldPosition();
 	bool IsDead() const { return isDead_; }
 	bool IsSwinging() const { return isSwinging_; }
+	/// @brief プレイヤーが向いている方向の単位ベクトルを取得（XZ平面）
+	Vector3 GetFacingDirection() const {
+		return {std::sin(worldTransform_.rotation_.y), 0.0f, std::cos(worldTransform_.rotation_.y)};
+	}
 
 private:
 	// --- 内部処理用関数 ---

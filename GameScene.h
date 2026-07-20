@@ -7,6 +7,7 @@
 #include "CameraController.h"
 #include "DeathParticles.h"
 #include "Fade.h"
+#include "Ball.h"
 
 /**
  * @brief ゲーム本編のメインシーン
@@ -32,6 +33,9 @@ public:
 	/// @brief すべての当たり判定をチェック
 	void CheckAllCollisions();
 
+	/// @brief プレイヤーのスイングとボールの当たり判定をチェック
+	void CheckBallCollision();
+
 	/// @brief シーン終了フラグを取得
 	bool IsFinished() const { return finished_; }
 
@@ -54,12 +58,14 @@ private:
 	KamataEngine::Model* blockModel_ = nullptr;         // ブロックのモデル
 	KamataEngine::Model* skydomeModel_ = nullptr;       // スカイドームのモデル
 	KamataEngine::Model* deathParticleModel_ = nullptr; // 死亡エフェクトのモデル
+	KamataEngine::Model* ballModel_ = nullptr;          // ボールのモデル
 
 	// --- ゲームオブジェクト ---
 	Player* player_ = nullptr;          // 自キャラ
 	Skydome* skydome_ = nullptr;        // 背景の空
 	MapChipField* mapChipField_ = nullptr; // マップデータ
 	DeathParticles* deathParticles_ = nullptr; // 死亡エフェクト管理
+	Ball* ball_ = nullptr;              // ボール
 
 	// --- カメラ・描画関連 ---
 	KamataEngine::Camera camera_;               // メインカメラ
@@ -71,6 +77,7 @@ private:
 	// --- システム関連 ---
 	Fade* fade_ = nullptr;      // 画面フェード演出
 	bool finished_ = false;    // シーン終了フラグ
+	bool prevSwinging_ = false; // 前フレームのスイング状態（スイング開始検出用）
 	
 	// ブロックの座標情報などのリスト
 	std::vector<std::vector<KamataEngine::WorldTransform*>> worldTransformBlocks_;

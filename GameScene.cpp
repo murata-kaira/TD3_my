@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "Math.h"
+#include <cmath>
 
 using namespace KamataEngine;
 
@@ -28,6 +29,8 @@ GameScene::~GameScene() {
 	delete blockModel_;
 	delete skydomeModel_;
 	delete deathParticleModel_;
+	delete ball_;
+	delete ballModel_;
 }
 
 /**
@@ -52,6 +55,7 @@ void GameScene::Initialize() {
 	blockModel_ = Model::CreateFromOBJ("block");
 	playerModel_ = Model::CreateFromOBJ("player");
 	deathParticleModel_ = Model::CreateFromOBJ("deathParticle");
+	ballModel_ = Model::Create(); // デフォルトのキューブモデルをボールに流用
 
 	// --- 3. マップの生成 ---
 	mapChipField_ = new MapChipField();
@@ -64,6 +68,14 @@ void GameScene::Initialize() {
 	// マップ上の初期位置（インデックス 0, 0）
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(5, 19);
 	player_->Initialize(playerModel_, &camera_, playerPosition);
+
+	// --- 4b. ボールの生成と初期化 ---
+	ball_ = new Ball();
+	// プレイヤーの少し前（Z+方向）にボールを置く
+	Vector3 ballPosition = playerPosition;
+	ballPosition.z += 1.5f;
+	ballPosition.y = playerPosition.y;
+	ball_->Initialize(ballModel_, &camera_, ballPosition);
 
 	// --- 5. 背景（スカイドーム）の初期化 ---
 	skydome_ = new Skydome();
@@ -148,10 +160,14 @@ void GameScene::Update() {
 			phase_ = Phase::kPlay;
 		}
 		player_->Update();
+		ball_->Update();
+		CheckBallCollision();
 		break;
 
 	case Phase::kPlay:
 		player_->Update();
+		ball_->Update();
+		CheckBallCollision();
 		CheckAllCollisions();
 		break;
 
@@ -196,6 +212,8 @@ void GameScene::Draw() {
 		player_->Draw(); 
 	}
 
+	ball_->Draw();
+
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
 			if (block) blockModel_->Draw(*block, camera_);
@@ -210,6 +228,37 @@ void GameScene::Draw() {
 
 	Sprite::PreDraw(dxCommon->GetCommandList());
 	Sprite::PostDraw();
+}
+
+/**
+ * @brief プレイヤーのスイングとボールの当たり判定
+ *
+ * スイング開始フレームにのみ判定を行う。
+ * プレイヤーの正面 kSwingReach の範囲内にボールがあれば打ち飛ばす。
+ */
+void GameScene::CheckBallCollision() {
+	bool currentSwinging = player_->IsSwinging();
+
+	// スイングが開始されたフレームだけ判定する
+	if (currentSwinging && !prevSwinging_) {
+		static constexpr float kSwingReach = 1.2f;  // スイングが届く距離
+		static constexpr float kHitSpeed = 0.35f;    // 打ち出し速度
+
+		Vector3 playerPos = player_->GetWorldPosition();
+		Vector3 ballPos   = ball_->GetWorldPosition();
+
+		float dx = ballPos.x - playerPos.x;
+		float dz = ballPos.z - playerPos.z;
+		float dist = std::sqrtf(dx * dx + dz * dz);
+
+		if (dist <= kSwingReach) {
+			// プレイヤーの向き方向にボールを打ち飛ばす
+			Vector3 dir = player_->GetFacingDirection();
+			ball_->Hit({dir.x * kHitSpeed, 0.0f, dir.z * kHitSpeed});
+		}
+	}
+
+	prevSwinging_ = currentSwinging;
 }
 
 /**
