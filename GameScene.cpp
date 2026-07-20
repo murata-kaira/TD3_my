@@ -9,6 +9,7 @@ using namespace KamataEngine;
 GameScene::~GameScene() { 
 	delete model_;
 	delete player_;
+	delete enemy_;
 	delete debugCamera_;
 	delete skydome_;
 	delete mapChipField_;
@@ -28,6 +29,7 @@ GameScene::~GameScene() {
 	delete blockModel_;
 	delete skydomeModel_;
 	delete deathParticleModel_;
+	delete enemyModel_;
 }
 
 /**
@@ -52,6 +54,7 @@ void GameScene::Initialize() {
 	blockModel_ = Model::CreateFromOBJ("block");
 	playerModel_ = Model::CreateFromOBJ("player");
 	deathParticleModel_ = Model::CreateFromOBJ("deathParticle");
+	enemyModel_ = Model::CreateFromOBJ("enemy");
 
 	// --- 3. マップの生成 ---
 	mapChipField_ = new MapChipField();
@@ -64,6 +67,11 @@ void GameScene::Initialize() {
 	// マップ上の初期位置（インデックス 0, 0）
 	Vector3 playerPosition = mapChipField_->GetMapChipPositionByIndex(5, 19);
 	player_->Initialize(playerModel_, &camera_, playerPosition);
+
+	// --- 4b. 敵キャラの生成と初期化 ---
+	enemy_ = new Enemy();
+	Vector3 enemyPosition = mapChipField_->GetMapChipPositionByIndex(10, 19);
+	enemy_->Initialize(enemyModel_, &camera_, enemyPosition);
 
 	// --- 5. 背景（スカイドーム）の初期化 ---
 	skydome_ = new Skydome();
@@ -152,6 +160,9 @@ void GameScene::Update() {
 
 	case Phase::kPlay:
 		player_->Update();
+		if (enemy_ && !enemy_->IsDead()) {
+			enemy_->Update();
+		}
 		CheckAllCollisions();
 		break;
 
@@ -196,6 +207,10 @@ void GameScene::Draw() {
 		player_->Draw(); 
 	}
 
+	if (enemy_ && !enemy_->IsDead()) {
+		enemy_->Draw();
+	}
+
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
 			if (block) blockModel_->Draw(*block, camera_);
@@ -216,6 +231,23 @@ void GameScene::Draw() {
  * @brief 当たり判定のチェック
  */
 void GameScene::CheckAllCollisions() {
-	// エネミー削除に伴い、現在はプレイヤーとマップの判定のみ（Playerクラス内で処理済み）
-	// 将来的にアイテム等の判定が必要になればここに追加する
+	// プレイヤーがバットを振っている間、敵との当たり判定をチェック
+	if (player_->IsAttacking() && enemy_ && !enemy_->IsDead()) {
+		AABB attackAABB = player_->GetAttackAABB();
+		AABB enemyAABB = enemy_->GetAABB();
+
+		if (IsCollision(attackAABB, enemyAABB)) {
+			enemy_->OnCollision(player_);
+		}
+	}
+
+	// プレイヤーが敵に触れた場合（バット攻撃中でなければダメージを受ける）
+	if (!player_->IsAttacking() && enemy_ && !enemy_->IsDead()) {
+		AABB playerAABB = player_->GetAABB();
+		AABB enemyAABB = enemy_->GetAABB();
+
+		if (IsCollision(playerAABB, enemyAABB)) {
+			player_->OnCollision(enemy_);
+		}
+	}
 }

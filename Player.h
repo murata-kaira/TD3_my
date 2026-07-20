@@ -53,12 +53,19 @@ public:
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 	Vector3 GetWorldPosition();
 	bool IsDead() const { return isDead_; }
+	bool IsAttacking() const { return isAttacking_; }
+
+	/// @brief バット攻撃の当たり判定AABBを取得
+	AABB GetAttackAABB();
 
 private:
 	// --- 内部処理用関数 ---
 
 	/// @brief 移動入力の処理
 	void InputMove();
+
+	/// @brief バット攻撃の入力処理
+	void InputAttack();
 
 	/// @brief マップとの当たり判定
 	struct CollisionMapInfo {
@@ -105,6 +112,11 @@ private:
 	float turnFirstRotationY_ = 0.0f; // 旋回開始時の角度
 	float turnTimer_ = 0.0f;          // 旋回のアニメーション用タイマー
 
+	// --- バット攻撃 ---
+	bool isAttacking_ = false;        // バットを振っている最中か
+	float attackTimer_ = 0.0f;        // 攻撃持続タイマー
+	bool attackKeyHeld_ = false;      // キーの連続入力防止用
+
 	// --- 定数（調整パラメータ） ---
 	static inline const float kAcceleration = 0.01f;      // 加速
 	static inline const float kAttenuation = 0.05f;       // 減速
@@ -119,4 +131,7 @@ private:
 	static inline const float kGroundSearchHeight = 0.06f; // 接地判定の深さ
 	static inline const float kAttenuationLanding = 0.0f;  // 着地時の減速
 	static inline const float kAttenuationWall = 0.2f;     // 壁接触時の減速
+	static inline const float kBatSwingTime = 0.3f;        // バットを振る持続時間（秒）
+	static inline const float kBatReach = 1.2f;            // バットの射程距離
+	static inline const float kBatWidth = 0.8f;            // バット当たり判定の幅
 };

@@ -78,5 +78,5 @@ Vector3 Enemy::GetWorldPosition() {
  */
 void Enemy::OnCollision(const Player* player) {
 	(void)player;
-	// 必要に応じて敵が倒れる処理などを書く
+	isDead_ = true;
 }

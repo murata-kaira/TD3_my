@@ -31,6 +31,8 @@ public:
 	/// @brief 衝突時のコールバック
 	void OnCollision(const Player* player);
 
+	bool IsDead() const { return isDead_; }
+
 private:
 	// --- コンポーネント ---
 	WorldTransform worldTransform_; // ワールド座標データ
@@ -40,6 +42,7 @@ private:
 	// --- 移動・アニメーション関連 ---
 	Vector3 velocity_ = {};        // 移動速度
 	float walkTimer = 0.0f;        // 歩行アニメーション用タイマー
+	bool isDead_ = false;          // 死亡フラグ（バットで倒された）
 
 	// --- 定数（調整パラメータ） ---
 	static inline const float kWalkSpeed = 0.02f;         // 歩くスピード

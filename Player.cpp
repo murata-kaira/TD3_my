@@ -31,6 +31,7 @@ void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera
  */
 void Player::Update() { 
 	InputMove();
+	InputAttack();
 	
 	CollisionMapInfo collisionMapInfo = {};
 	collisionMapInfo.move = velocity_; 
@@ -224,4 +225,47 @@ Vector3 Player::CornerPosition(const Vector3& center, Corner corner) {
 	    {-kWidth / 2.0f, 0, +kHeight / 2.0f}  // 左上
 	};
 	return center + offsetTable[static_cast<uint32_t>(corner)];
+}
+
+/**
+ * @brief バット攻撃の入力処理
+ */
+void Player::InputAttack() {
+	bool keyPressed = Input::GetInstance()->PushKey(DIK_SPACE);
+
+	// キーが新しく押された瞬間だけ攻撃を開始（長押し防止）
+	if (keyPressed && !attackKeyHeld_ && !isAttacking_) {
+		isAttacking_ = true;
+		attackTimer_ = kBatSwingTime;
+	}
+	attackKeyHeld_ = keyPressed;
+
+	// 攻撃タイマーのカウントダウン
+	if (isAttacking_) {
+		attackTimer_ -= 1.0f / 60.0f;
+		if (attackTimer_ <= 0.0f) {
+			isAttacking_ = false;
+			attackTimer_ = 0.0f;
+		}
+	}
+}
+
+/**
+ * @brief バット攻撃のAABBを取得（プレイヤーの向いている方向の前方）
+ */
+AABB Player::GetAttackAABB() {
+	float ry = worldTransform_.rotation_.y;
+	Vector3 pos = GetWorldPosition();
+	// 向いている方向のベクトル
+	float forwardX = std::sin(ry);
+	float forwardZ = std::cos(ry);
+	Vector3 center = {
+	    pos.x + forwardX * kBatReach,
+	    pos.y,
+	    pos.z + forwardZ * kBatReach
+	};
+	return {
+	    {center.x - kBatWidth / 2.0f, center.y - kBatWidth / 2.0f, center.z - kBatWidth / 2.0f},
+	    {center.x + kBatWidth / 2.0f, center.y + kBatWidth / 2.0f, center.z + kBatWidth / 2.0f}
+	};
 }
