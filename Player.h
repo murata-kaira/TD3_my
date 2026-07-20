@@ -138,5 +138,7 @@ private:
 	static inline const float kSwingMaxAngle = 1.5f;      // スイングの最大傾き角度（ラジアン）
 
 	// --- バット配置定数 ---
-	static inline const Vector3 kBatLocalTranslation = {0.5f, 0.3f, 0.0f}; // プレイヤーローカル座標でのバット位置（右手付近）
+	// プレイヤーローカル座標でのバット初期位置
+	// x=+0.5: 右手側, y=+0.3: 腰〜胸の高さ, z=0: 奥行き中央
+	static inline const Vector3 kBatLocalTranslation = {0.5f, 0.3f, 0.0f};
 };

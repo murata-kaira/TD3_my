@@ -82,7 +82,8 @@ void Player::Draw() {
  * @brief バットスイング入力の処理
  *
  * Spaceキーを押すとスイングアニメーションが始まる。
- * スイング中はモデルが X 軸方向に揺れ、バットを振る動きを表現する。
+ * バットの X 軸回転を sin 波で変化させることでスイング動作を表現する。
+ * プレイヤー本体は動かさず、バットのみを振る。
  */
 void Player::InputSwing() {
 	// スイング中でないとき、Spaceキーが押されたらスイング開始
@@ -96,12 +97,12 @@ void Player::InputSwing() {
 		float progress = swingTimer_ / kSwingTime;
 
 		if (progress >= 1.0f) {
-			// スイング終了：元の姿勢に戻す
+			// スイング終了：バットを元の姿勢に戻す
 			isSwinging_ = false;
-			worldTransform_.rotation_.x = 0.0f;
+			batWorldTransform_.rotation_.x = 0.0f;
 		} else {
 			// sin 波で滑らかに振る：0 → 最大角度 → 0
-			worldTransform_.rotation_.x = kSwingMaxAngle * std::sin(std::numbers::pi_v<float> * progress);
+			batWorldTransform_.rotation_.x = kSwingMaxAngle * std::sin(std::numbers::pi_v<float> * progress);
 		}
 	}
 }
