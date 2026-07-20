@@ -1,6 +1,5 @@
 #include "GameScene.h"
 #include "Math.h"
-#include <cmath>
 
 using namespace KamataEngine;
 
@@ -249,9 +248,9 @@ void GameScene::CheckBallCollision() {
 
 		float dx = ballPos.x - playerPos.x;
 		float dz = ballPos.z - playerPos.z;
-		float dist = std::sqrtf(dx * dx + dz * dz);
+		float distSq = dx * dx + dz * dz;
 
-		if (dist <= kSwingReach) {
+		if (distSq <= kSwingReach * kSwingReach) {
 			// プレイヤーの向き方向にボールを打ち飛ばす
 			Vector3 dir = player_->GetFacingDirection();
 			ball_->Hit({dir.x * kHitSpeed, 0.0f, dir.z * kHitSpeed});
