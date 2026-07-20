@@ -133,5 +133,6 @@ private:
 	static inline const float kAttenuationWall = 0.2f;     // 壁接触時の減速
 	static inline const float kBatSwingTime = 0.3f;        // バットを振る持続時間（秒）
 	static inline const float kBatReach = 1.2f;            // バットの射程距離
-	static inline const float kBatWidth = 0.8f;            // バット当たり判定の幅
+	static inline const float kBatWidth = 0.8f;            // バット当たり判定の幅（XZ）
+	static inline const float kBatHitHeight = 1.6f;        // バット当たり判定の高さ（Y）
 };

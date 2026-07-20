@@ -265,7 +265,7 @@ AABB Player::GetAttackAABB() {
 	    pos.z + forwardZ * kBatReach
 	};
 	return {
-	    {center.x - kBatWidth / 2.0f, center.y - kBatWidth / 2.0f, center.z - kBatWidth / 2.0f},
-	    {center.x + kBatWidth / 2.0f, center.y + kBatWidth / 2.0f, center.z + kBatWidth / 2.0f}
+	    {center.x - kBatWidth / 2.0f, center.y - kBatHitHeight / 2.0f, center.z - kBatWidth / 2.0f},
+	    {center.x + kBatWidth / 2.0f, center.y + kBatHitHeight / 2.0f, center.z + kBatWidth / 2.0f}
 	};
 }

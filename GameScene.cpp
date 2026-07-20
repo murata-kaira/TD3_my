@@ -241,7 +241,7 @@ void GameScene::CheckAllCollisions() {
 		}
 	}
 
-	// プレイヤーが敵に触れた場合（バット攻撃中でなければダメージを受ける）
+	// プレイヤーが敵に触れた場合（バット攻撃中でなければ死亡する）
 	if (!player_->IsAttacking() && enemy_ && !enemy_->IsDead()) {
 		AABB playerAABB = player_->GetAABB();
 		AABB enemyAABB = enemy_->GetAABB();
