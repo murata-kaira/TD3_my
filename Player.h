@@ -53,12 +53,16 @@ public:
 	void SetMapChipField(MapChipField* mapChipField) { mapChipField_ = mapChipField; }
 	Vector3 GetWorldPosition();
 	bool IsDead() const { return isDead_; }
+	bool IsSwinging() const { return isSwinging_; }
 
 private:
 	// --- 内部処理用関数 ---
 
 	/// @brief 移動入力の処理
 	void InputMove();
+
+	/// @brief バットスイング入力の処理
+	void InputSwing();
 
 	/// @brief マップとの当たり判定
 	struct CollisionMapInfo {
@@ -105,6 +109,10 @@ private:
 	float turnFirstRotationY_ = 0.0f; // 旋回開始時の角度
 	float turnTimer_ = 0.0f;          // 旋回のアニメーション用タイマー
 
+	// --- スイング関連 ---
+	bool isSwinging_ = false;  // スイング中フラグ
+	float swingTimer_ = 0.0f; // スイングアニメーション用タイマー
+
 	// --- 定数（調整パラメータ） ---
 	static inline const float kAcceleration = 0.01f;      // 加速
 	static inline const float kAttenuation = 0.05f;       // 減速
@@ -119,4 +127,6 @@ private:
 	static inline const float kGroundSearchHeight = 0.06f; // 接地判定の深さ
 	static inline const float kAttenuationLanding = 0.0f;  // 着地時の減速
 	static inline const float kAttenuationWall = 0.2f;     // 壁接触時の減速
+	static inline const float kSwingTime = 0.4f;          // スイング1回にかかる時間（秒）
+	static inline const float kSwingMaxAngle = 1.5f;      // スイングの最大傾き角度（ラジアン）
 };

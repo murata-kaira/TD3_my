@@ -31,6 +31,7 @@ void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera
  */
 void Player::Update() { 
 	InputMove();
+	InputSwing();
 	
 	CollisionMapInfo collisionMapInfo = {};
 	collisionMapInfo.move = velocity_; 
@@ -53,6 +54,34 @@ void Player::Update() {
  */
 void Player::Draw() { 
 	model_->Draw(worldTransform_, *camera_, textureHandle_); 
+}
+
+/**
+ * @brief バットスイング入力の処理
+ *
+ * Spaceキーを押すとスイングアニメーションが始まる。
+ * スイング中はモデルが X 軸方向に揺れ、バットを振る動きを表現する。
+ */
+void Player::InputSwing() {
+	// スイング中でないとき、Spaceキーが押されたらスイング開始
+	if (!isSwinging_ && Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		isSwinging_ = true;
+		swingTimer_ = 0.0f;
+	}
+
+	if (isSwinging_) {
+		swingTimer_ += 1.0f / 60.0f;
+		float progress = swingTimer_ / kSwingTime;
+
+		if (progress >= 1.0f) {
+			// スイング終了：元の姿勢に戻す
+			isSwinging_ = false;
+			worldTransform_.rotation_.x = 0.0f;
+		} else {
+			// sin 波で滑らかに振る：0 → 最大角度 → 0
+			worldTransform_.rotation_.x = kSwingMaxAngle * std::sin(std::numbers::pi_v<float> * progress);
+		}
+	}
 }
 
 /**
