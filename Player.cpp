@@ -8,6 +8,13 @@
 #include "MapChipField.h"
 
 /**
+ * @brief デストラクタ
+ */
+Player::~Player() {
+	delete batModel_;
+}
+
+/**
  * @brief 初期化
  */
 void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const Vector3& position) { 
@@ -24,6 +31,11 @@ void Player::Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera
 	
 	// 初期方向を前（Z軸プラス）に向ける
 	worldTransform_.rotation_.y = 0.0f;
+
+	// バットモデルのロードと初期化
+	batModel_ = KamataEngine::Model::CreateFromOBJ("bat");
+	batWorldTransform_.Initialize();
+	batWorldTransform_.translation_ = kBatLocalTranslation;
 }
 
 /**
@@ -47,6 +59,15 @@ void Player::Update() {
 	}
 
 	WorldTransformUpdate(worldTransform_);
+
+	// バットのワールド行列をプレイヤーローカル空間で計算（親子関係）
+	Matrix4x4 batLocal = MakeAffineMatrix(
+		batWorldTransform_.scale_,
+		batWorldTransform_.rotation_,
+		batWorldTransform_.translation_
+	);
+	batWorldTransform_.matWorld_ = Multiply(batLocal, worldTransform_.matWorld_);
+	batWorldTransform_.TransferMatrix();
 }
 
 /**
@@ -54,6 +75,7 @@ void Player::Update() {
  */
 void Player::Draw() { 
 	model_->Draw(worldTransform_, *camera_, textureHandle_); 
+	batModel_->Draw(batWorldTransform_, *camera_);
 }
 
 /**

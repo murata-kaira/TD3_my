@@ -32,6 +32,9 @@ public:
 
 	// --- 公開メンバ関数 ---
 
+	/// @brief デストラクタ（バットモデル解放）
+	~Player();
+
 	/// @brief 初期化
 	void Initialize(KamataEngine::Model* model, KamataEngine::Camera* camera, const Vector3& position);
 	
@@ -98,6 +101,10 @@ private:
 	KamataEngine::Model* model_ = nullptr;       // 使用するモデル
 	uint32_t textureHandle_ = 0u;                // テクスチャ
 
+	// --- バット ---
+	KamataEngine::Model* batModel_ = nullptr;         // バットモデル
+	KamataEngine::WorldTransform batWorldTransform_;  // バットのワールド座標（ローカル）
+
 	// --- 移動・ステータス ---
 	Vector3 velocity_ = {0, 0, 0};   // 現在の移動速度
 	LRDirection lrDirection_ = LRDirection::kRight; // 向いている方向
@@ -129,4 +136,7 @@ private:
 	static inline const float kAttenuationWall = 0.2f;     // 壁接触時の減速
 	static inline const float kSwingTime = 0.4f;          // スイング1回にかかる時間（秒）
 	static inline const float kSwingMaxAngle = 1.5f;      // スイングの最大傾き角度（ラジアン）
+
+	// --- バット配置定数 ---
+	static inline const Vector3 kBatLocalTranslation = {0.5f, 0.3f, 0.0f}; // プレイヤーローカル座標でのバット位置（右手付近）
 };
