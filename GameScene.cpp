@@ -9,7 +9,6 @@ using namespace KamataEngine;
 GameScene::~GameScene() { 
 	delete model_;
 	delete player_;
-	delete debugCamera_;
 	delete skydome_;
 	delete mapChipField_;
 	delete cameraController_;
@@ -36,8 +35,6 @@ GameScene::~GameScene() {
 void GameScene::Initialize() {
 	// --- 1. システム・カメラの初期化 ---
 	camera_.Initialize();
-	
-	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 	
 	fade_ = new Fade();
 	fade_->Initialize();
@@ -133,8 +130,7 @@ void GameScene::Update() {
 	ChangePhase();
 
 	skydome_->Update();
-	cameraController_->Update();
-	
+
 	switch (phase_) {
 	case Phase::kFadeIn:
 		fade_->Update();
@@ -160,14 +156,8 @@ void GameScene::Update() {
 		break;
 	}
 
-	if (isDebugCameraActive_) {
-		debugCamera_->Update();
-		camera_.matView = debugCamera_->GetCamera().matView;
-		camera_.matProjection = debugCamera_->GetCamera().matProjection;
-		camera_.TransferMatrix();
-	} else {
-		camera_.UpdateMatrix();
-	}
+	// 一人称カメラを常に適用（プレイヤー更新後に実行）
+	cameraController_->Update();
 
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {

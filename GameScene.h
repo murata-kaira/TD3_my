@@ -64,8 +64,6 @@ private:
 	// --- カメラ・描画関連 ---
 	KamataEngine::Camera camera_;               // メインカメラ
 	CameraController* cameraController_ = nullptr; // カメラ制御
-	KamataEngine::DebugCamera* debugCamera_ = nullptr; // デバッグ用カメラ
-	bool isDebugCameraActive_ = false;          // デバッグカメラが有効か
 	uint32_t textureHandle_ = 0;               // テクスチャハンドル
 
 	// --- システム関連 ---
