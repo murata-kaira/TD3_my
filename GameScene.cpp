@@ -36,9 +36,6 @@ GameScene::~GameScene() {
 void GameScene::Initialize() {
 	// --- 1. システム・カメラの初期化 ---
 	camera_.Initialize();
-	// カメラを斜め上からの俯瞰視点に設定
-	camera_.translation_ = { 0.0f, 15.0f, -10.0f }; // 高く、手前に
-	camera_.rotation_ = { 0.8f, 0.0f, 0.0f };      // 下を向く
 	
 	debugCamera_ = new DebugCamera(WinApp::kWindowWidth, WinApp::kWindowHeight);
 	
@@ -74,9 +71,6 @@ void GameScene::Initialize() {
 	cameraController_->Initialize(&camera_);    
 	cameraController_->SetTarget(player_);
 	cameraController_->Reset();
-	// カメラの移動可能範囲（XZ平面に合わせて調整）
-	CameraController::Rect cameraArea = {0.0f, 100.0f, 0.0f, 20.0f};
-	cameraController_->SetMovableArea(cameraArea);
 
 	phase_ = Phase::kPlay;
 }
@@ -192,9 +186,7 @@ void GameScene::Draw() {
 
 	skydome_->Draw(); 
 
-	if (!player_->IsDead()) {
-		player_->Draw(); 
-	}
+	// 一人称視点のためプレイヤーモデルは描画しない
 
 	for (auto& line : worldTransformBlocks_) {
 		for (auto& block : line) {
